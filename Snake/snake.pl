@@ -148,7 +148,7 @@ sub move {
 #0    Perform a normal read using getc;-1(循环时非常占用资源)   Perform a non-blocked read;>0   Perform a timed read如果在非阻塞读取期间缓冲区中没有等待，则将返回 undef。在大多数情况下，您可能想要使用ReadKey -1.
 # sleep(1.1-$speed*0.1+$ti-time()) if $key !~ /[wasdWASD]/;
     while ( time() < $ti) {
-        $key = getKey(0.005)->{'key'};#ReadKey(0.02);
+        $key = getKey(0.05)->{'key'};#ReadKey(0.02);
         if ( $key && $flag ) {
             # 不允许反向移动
             $key =~ tr/a-z/A-Z/;
