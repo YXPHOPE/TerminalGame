@@ -10,8 +10,16 @@ use Term::ANSIColor qw(:constants);
 use POSIX qw/log10/;
 use Encode;
 use Encode::CN;
+our $VERSION = '2.0.1';
+our $update_log = '
+v1.0.1: 创建了基础运行
+v1.1.1: 添加样式支持
+v1.2.1: 修复了头尾相连时判断为死亡的bug
+v1.5.1: 升级了按键支持，WASD、方向键
+v2.0.1: 升级了终端显示方式，改为按光标位置覆盖要改变位置的内容
+';
 $Term::ANSIColor::AUTORESET = 1;    ##S自动为下一句去除颜色设定E##
-our ( $Width, $Height ) = ( 10, 10 );
+our ( $Width, $Height,$x0,$y0 ) = ( 10, 10,4,1 );
 our %style = (
     'b',  'bold',      'i', 'italic',
     'u',  'underline', 'c', 'cyan',
@@ -79,6 +87,47 @@ for (@ARGV) {
     # elsif ( /^--?debug$/ || /^-?d$/ || /^D$/ ) { $DEBUG = 1; }
     # elsif (/^zh-cn$/)                          { $LANG  = 'zh-cn' }
     # elsif (/^\d+$/) { $CONFIG{'Line'} = $_; }
+}
+our %Style = (
+'','0', # 默认
+' ','0',
+'h','1', # 高亮
+'u','4', # 下划线
+'t','5', # 闪烁
+'v','7', # 反显verse
+'n','8', # 不可见none
+'b','30', # 黑色前景
+'r','31', # 红色前景
+'g','32', # 绿色前景
+'y','33', # 黄色前景
+'l','34', # 蓝色前景(拼音l)
+'p','35', # 紫色前景
+'c','36', # 青色前景cyan
+'w','37', # 白色前景
+'bb','40', # 黑色背景
+'br','41', # 红色背景
+'bg','42', # 绿色背景
+'by','43', # 黄色背景
+'bl','44', # 蓝色背景
+'bp','45', # 紫色背景
+'bc','46', # 青色背景
+'bw','47', # 白色背景
+);
+sub parseStyle {
+    my $sty = shift;
+    my $res = "\033[";
+    for(split(/[\&;]/,$sty)){
+        if (exists $Style{$_}){
+            $res.=$Style{$_}.';';
+        }
+    }
+    if($res eq "\033["){return ''}
+    else{chop($res);return $res.'m';}
+}
+sub prtloc{
+    my($x,$y,$s,$sty)=@_;
+    $sty = (defined $sty)?parseStyle($sty):'';
+    print("\033[$x;${y}H$sty$s\033[0m");
 }
 sub main {
     system($^O eq 'MSWin32'?'cls':'clear'); # 清屏以保证cmd效果
@@ -224,6 +273,8 @@ sub check_head {
           ;    # 新的蛇身放在尾部,此时尾部有两个相同的坐标，pop后刚好相当于尾巴不动，蛇头动
     }
 
+    # prtloc($x0+$snake[0][0],$y0+$snake[0][1],'■','y');
+
     # 移动
     $bg[ $snake[0][0] ][ $snake[0][1] ] = $arrow{$cur};
     if ( !( $snake[-1][0] == $snake[0][0] && $snake[-1][1] == $snake[0][1] ) ) {
@@ -318,7 +369,19 @@ sub getKey{
     # print("\033[1A\033[8C@c - ".length($t)." $t\n");
     return $obj;
 }
-main();
+# main();
+
+# # system('cls');
+for my $x(0..9){
+    for my $y(0..9){
+        print($y);
+    }
+    print "\n";
+}
+prtloc(3,7,'v','h;y');
+# prtloc(11,10,'');
+# print("\033[3;5H\033[1;31m-\033[0m");
+# print(parseStyle('g;bl')."0101\033[0m]");
 # while(1){
 #     my %x = %{getKey(5)};
 #     print("$x{'ctrl'} $x{'key'}\n");

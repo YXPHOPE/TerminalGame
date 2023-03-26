@@ -1,5 +1,6 @@
 # 俄罗斯方块游戏，作者YXP，版本V2.9.0
 # 进行了多语言尝试
+# 下一步更新：getKey和定点输出
 use strict;
 use warnings;
 use utf8;
